@@ -1,18 +1,22 @@
 <template>
-  <div id="app">
-    <img alt="Vue logo" src="./assets/logo.png">
-    <HelloWorld msg="Welcome to Your Vue.js App"/>
-  </div>
+  <kaiui-content>
+    <kaiui-header title="Kezado Maps" />
+    <map-component/>
+  </kaiui-content>
 </template>
 
 <script>
-import HelloWorld from './components/HelloWorld.vue'
+
+import MapComponent from './components/MapComponent.vue'
 
 export default {
   name: 'App',
   components: {
-    HelloWorld
-  }
+    MapComponent
+  },
+  data: () => ({
+    softkeysPhone: { left: "What's App", center: "Call", right: "SMS" },
+  })
 }
 </script>
 
@@ -25,4 +29,10 @@ export default {
   color: #2c3e50;
   margin-top: 60px;
 }
+
+:root{
+
+ --primary-dark-color: #02b51e;
+} 
+
 </style>
