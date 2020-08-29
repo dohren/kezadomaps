@@ -71,8 +71,14 @@ export default {
        this.zoom--;
     },
     onPosition() {
-      this.center = this.position;
-      this.zoom = 16;
+      console.log(this.position);
+      if (this.position[1] == 0) {
+        alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
+      }
+      else {
+        this.center = this.position;
+        this.zoom = 16;
+      }
     },
     onUpdatePosition(coordinate) {
       this.position = coordinate;
