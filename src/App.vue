@@ -21,6 +21,10 @@ export default {
 </script>
 
 <style>
+html {
+  min-width: 240px;
+}
+
 #app {
   font-family: Avenir, Helvetica, Arial, sans-serif;
   -webkit-font-smoothing: antialiased;

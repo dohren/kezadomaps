@@ -1,54 +1,112 @@
 <template>
-    <div class="map-dialog">
-        <vl-map  class="map" ref="map" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" data-projection="EPSG:4326" >
+    <div class="map-dialog" >
+        <vl-map class="map" ref="map" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" data-projection="EPSG:4326" >
           <!-- map view aka ol.View -->
-          <vl-view ref="view"  ></vl-view>
+          <vl-view 
+            ref="view" 
+            :center.sync="center" 
+            :zoom.sync="zoom" >
+          </vl-view>
 
           <vl-layer-tile>
-            <component :is="'vl-source-osm'" v-bind="layer"></component>
+            <component :is="'vl-source-osm'" v-bind="layer">rwar</component>
           </vl-layer-tile>   
+
+          <vl-geoloc @update:position="onUpdatePosition">
+            <template slot-scope="geoloc">
+              <vl-feature v-if="geoloc.position" id="position-feature">
+                <vl-geom-point :coordinates="geoloc.position"></vl-geom-point>
+                <vl-style-box>
+                  <vl-style-icon src="./assets/marker.png" :scale="0.4" :anchor="[0.5, 1]"></vl-style-icon>
+                </vl-style-box>
+              </vl-feature>
+            </template>
+          </vl-geoloc>
         </vl-map>
-        <div class="kaiui-softkeys">
-            <span class="kaiui-h5 kaiui-left" v-on:click="onClickLeft">{{
-            left
-            }}</span>
-            <span class="kaiui-p_link kaiui-center-spacer"></span>
-            <span class="kaiui-h5 kaiui-right" v-on:click="onClickRight">{{
-            right
-            }}</span>
-        </div>       
+        
+        <kaiui-softkeys
+          ref="kaiuisoftkeys"
+          :softkeys="softkeys"
+          :component="this.softkeysComponent"
+          @softkey-left-pressed="onZoomOut"
+          @softkey-right-pressed="onZoomIn"
+          @softkey-center-pressed="onPosition"
+        />
     </div>
 </template>
 
 <script>
 
-  const methods = {
-    onClickLeft() {
-        alert('left');
-    },
-     onClickRight() {
-        alert('right');
-    }
-  }
-
 export default {
   name: 'MapComponent',
   props: {
-    msg: String
+    msg: String,
+    
   },
   data: () => ({
-      left: "links",
-      right: "rechts"
+    center: [11.061859, 49.460983],
+    position: [0,0],
+    zoom: 16,
+    delta: 0.0008,
+    rotation: 0,
+    softkeys: {
+          left: "-",
+          center: 'Position',
+          right: "+",
+    },
+    softkeysComponent: {},
+    geolocation: [0,0],
+    layer: []
   }),
   created: function () {
   },
-  layers: [
+  methods: {
+    softkeyLeftPressed() {
+      alert("es funktioniert");
+    },
+    onZoomIn() {
+      this.zoom++;
+    },
+     onZoomOut() {
+       this.zoom--;
+    },
+    onPosition() {
+      this.center = this.position;
+      this.zoom = 16;
+    },
+    onUpdatePosition(coordinate) {
+      this.position = coordinate;
+    }
+  },
+  mounted() {
+    let $vm = this;
+    this.softkeysComponent = this.$refs.kaiuisoftkeys;
+    window.addEventListener("keydown", function(e) {
+      switch (e.key) {
+        case "ArrowLeft":
+            $vm.center = [$vm.center[0] - $vm.delta, $vm.center[1]];
+            break;
+        case "ArrowRight":
+            $vm.center = [$vm.center[0] + $vm.delta, $vm.center[1]];
+            break;
+        case "ArrowUp":
+            $vm.center = [$vm.center[0], $vm.center[1] + $vm.delta];
+            break;
+        case "ArrowDown":
+            $vm.center = [$vm.center[0], $vm.center[1] - $vm.delta];
+            break;
+      }
+    });
+  },
+  watch: {
+    zoom: function() {
+      this.delta = 52.4288 / parseFloat(2 ** this.zoom)
+    }
+  }
     
-  
-  ],
-  methods: methods
 
 }
+
 </script>
 
 <style lang="sass">
@@ -93,5 +151,9 @@ export default {
       letter-spacing: -0.5px
       box-sizing: border-box
       text-overflow: ellipsis
-    
+
+    .map-dialog .ol-zoom-in, .map-dialog .ol-zoom-out
+      display: none
+
+
 </style>
