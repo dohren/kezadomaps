@@ -82,9 +82,6 @@ export default {
   created: function () {
   },
   methods: {
-    softkeyLeftPressed() {
-      alert("es funktioniert");
-    },
     onZoomIn() {
       this.zoom++;
     },
@@ -98,19 +95,15 @@ export default {
       }
       else {
         this.center = this.position;
-        this.zoom = 2;
+        this.zoom = 16;
       }
     },
     onUpdatePosition(coordinate) {
+      this.tracking.push(coordinate);
       this.position = coordinate;
     }
   },
   mounted() {
-      this.loading = true
-      this.loadFeatures().then(features => {
-        this.features = features.map(Object.freeze)
-        this.loading = false
-      })
 
     let $vm = this;
     this.softkeysComponent = this.$refs.kaiuisoftkeys;
@@ -134,11 +127,6 @@ export default {
   watch: {
     zoom: function() {
       this.delta = 52.4288 / parseFloat(2 ** this.zoom);
-    },
-    center: function() {
-      this.tracking.push(this.center);
-      console.log(this.tracking);
-
     }
   }
 }
