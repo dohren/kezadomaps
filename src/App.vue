@@ -13,10 +13,8 @@ export default {
   name: 'App',
   components: {
     MapComponent
-  },
-  data: () => ({
-    softkeysPhone: { left: "What's App", center: "Call", right: "SMS" },
-  })
+  }
+  
 }
 </script>
 

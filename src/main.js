@@ -7,6 +7,8 @@ import VueLayers from 'vuelayers'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 
+
+
 Vue.config.productionTip = false
 Vue.use(Buefy, {
   defaultIconPack: 'fa',

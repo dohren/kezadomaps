@@ -9,9 +9,24 @@
           </vl-view>
 
           <vl-layer-tile>
-            <component :is="'vl-source-osm'" v-bind="layer">rwar</component>
-          </vl-layer-tile>   
+            <component :is="'vl-source-osm'" v-bind="layer"></component>
+          </vl-layer-tile>  
 
+          <vl-feature>
+            <vl-geom-point :coordinates="this.center"></vl-geom-point>
+          </vl-feature>
+
+          <vl-layer-vector> 
+              <vl-feature>
+                <vl-geom-line-string :coordinates="this.tracking"></vl-geom-line-string>
+              </vl-feature>
+              <vl-style-box>
+                <vl-style-fill color="rgba(255, 255, 255, 0.2)"></vl-style-fill>
+                <vl-style-stroke color="green" :width="3"></vl-style-stroke>
+              </vl-style-box>
+          </vl-layer-vector>
+
+        
           <vl-geoloc @update:position="onUpdatePosition">
             <template slot-scope="geoloc">
               <vl-feature v-if="geoloc.position" id="position-feature">
@@ -32,8 +47,11 @@
           @softkey-right-pressed="onZoomIn"
           @softkey-center-pressed="onPosition"
         />
+
+
     </div>
 </template>
+
 
 <script>
 
@@ -41,7 +59,6 @@ export default {
   name: 'MapComponent',
   props: {
     msg: String,
-    
   },
   data: () => ({
     center: [11.061859, 49.460983],
@@ -49,14 +66,18 @@ export default {
     zoom: 16,
     delta: 0.0008,
     rotation: 0,
+    lalala: 99,
+    url: 'assets/ruppertsklamm.gpx',
     softkeys: {
           left: "-",
           center: 'Position',
           right: "+",
     },
     softkeysComponent: {},
-    geolocation: [0,0],
-    layer: []
+    layer: [],
+    features: [],
+    tracking: [                 
+    ],
   }),
   created: function () {
   },
@@ -77,7 +98,7 @@ export default {
       }
       else {
         this.center = this.position;
-        this.zoom = 16;
+        this.zoom = 2;
       }
     },
     onUpdatePosition(coordinate) {
@@ -85,6 +106,12 @@ export default {
     }
   },
   mounted() {
+      this.loading = true
+      this.loadFeatures().then(features => {
+        this.features = features.map(Object.freeze)
+        this.loading = false
+      })
+
     let $vm = this;
     this.softkeysComponent = this.$refs.kaiuisoftkeys;
     window.addEventListener("keydown", function(e) {
@@ -106,13 +133,15 @@ export default {
   },
   watch: {
     zoom: function() {
-      this.delta = 52.4288 / parseFloat(2 ** this.zoom)
+      this.delta = 52.4288 / parseFloat(2 ** this.zoom);
+    },
+    center: function() {
+      this.tracking.push(this.center);
+      console.log(this.tracking);
+
     }
   }
-    
-
 }
-
 </script>
 
 <style lang="sass">
