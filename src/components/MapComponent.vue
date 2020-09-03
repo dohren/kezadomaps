@@ -16,7 +16,7 @@
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
           </vl-feature>
 
-          <vl-layer-vector> 
+          <!-- vl-layer-vector> 
               <vl-feature>
                 <vl-geom-line-string :coordinates="this.tracking"></vl-geom-line-string>
               </vl-feature>
@@ -24,7 +24,7 @@
                 <vl-style-fill color="rgba(255, 255, 255, 0.2)"></vl-style-fill>
                 <vl-style-stroke color="green" :width="3"></vl-style-stroke>
               </vl-style-box>
-          </vl-layer-vector>
+          </vl-layer-vector -->
 
         
           <vl-geoloc @update:position="onUpdatePosition">
@@ -54,6 +54,10 @@
 
 
 <script>
+import VectorSource from 'ol/source/Vector';
+import VectorLayer from 'ol/layer/Vector';
+import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
+import GPX from 'ol/format/GPX'; 
 
 export default {
   name: 'MapComponent',
@@ -123,6 +127,47 @@ export default {
             break;
       }
     });
+
+    let style = {
+      'Point': new Style({
+        image: new CircleStyle({
+          fill: new Fill({
+            color: 'rgba(255,255,0,0.4)'
+          }),
+          radius: 5,
+          stroke: new Stroke({
+            color: '#f60404 	',
+            width: 1
+          })
+        })
+      }),
+      'LineString': new Style({
+        stroke: new Stroke({
+          color: '#f60404 	',
+          width: 3
+        })
+      }),
+      'MultiLineString': new Style({
+        stroke: new Stroke({
+          color: '#f60404 	',
+          width: 3
+        })
+      })
+    };
+
+    var layer = new VectorLayer({
+    source: new VectorSource({
+        format: new GPX(),
+        url: 'assets/ruppertsklamm.gpx',
+      }),
+      style: function(feature) {
+        return style[feature.getGeometry().getType()];
+      }
+    });
+    layer.setZIndex(20);
+
+    let map = this.$refs.map;
+    map.addLayer(layer);
   },
   watch: {
     zoom: function() {
