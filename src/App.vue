@@ -1,20 +1,44 @@
 <template>
   <kaiui-content>
     <kaiui-header title="Kezado Maps" />
-    <map-component/>
+    <map-component v-if="!this.inSettings" />
+    <settings v-else v-on:closeSettings="onCloseSettings"/>
   </kaiui-content>
 </template>
 
 <script>
 
-import MapComponent from './components/MapComponent.vue'
+import MapComponent from './components/Map.vue'
+import Settings from './components/Settings.vue'
 
 export default {
   name: 'App',
   components: {
-    MapComponent
-  }
-  
+    MapComponent,
+    Settings
+  },
+  data: () => ({
+    inSettings: false,
+    settings: ""
+  }),
+  methods: {
+    onCloseSettings(settings) {
+      this.settings = settings;
+      this.inSettings = false;
+    }
+  },
+  mounted() {
+    let $vm = this;
+    window.addEventListener("keydown", function(e) {
+      
+      switch (e.key) {
+        case "Backspace":
+            e.preventDefault();
+            $vm.inSettings = true;
+            break;
+      }
+    });
+   }
 }
 </script>
 

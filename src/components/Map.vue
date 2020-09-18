@@ -16,7 +16,7 @@
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
           </vl-feature>
 
-          <!-- vl-layer-vector> 
+          <vl-layer-vector> 
               <vl-feature>
                 <vl-geom-line-string :coordinates="this.tracking"></vl-geom-line-string>
               </vl-feature>
@@ -24,7 +24,7 @@
                 <vl-style-fill color="rgba(255, 255, 255, 0.2)"></vl-style-fill>
                 <vl-style-stroke color="green" :width="3"></vl-style-stroke>
               </vl-style-box>
-          </vl-layer-vector -->
+          </vl-layer-vector>
 
         
           <vl-geoloc @update:position="onUpdatePosition">
@@ -45,7 +45,7 @@
           :component="this.softkeysComponent"
           @softkey-left-pressed="onZoomOut"
           @softkey-right-pressed="onZoomIn"
-          @softkey-center-pressed="onPosition"
+          @softkey-center-pressed="onFunctionKey"
         />
 
 
@@ -92,19 +92,33 @@ export default {
      onZoomOut() {
        this.zoom--;
     },
-    onPosition() {
+    onFunctionKey() {
       console.log(this.position);
       if (this.position[1] == 0) {
         alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
       }
       else {
-        this.center = this.position;
-        this.zoom = 16;
+        if (this.softkeys.center == "POSITION") {
+          this.softkeys.center = "Start";
+          this.center = this.position;
+          this.zoom = 16;
+        }
+        else if (this.softkeys.center == "Start") {
+          this.softkeys.center="Stop";
+        }
+        else {
+          this.softkeys.center = "POSITION";
+        }
       }
     },
     onUpdatePosition(coordinate) {
       this.tracking.push(coordinate);
       this.position = coordinate;
+      if (this.softkeys.center == "Stop") {
+        this.center = this.position;
+        this.zoom = 16;
+      }
+
     }
   },
   mounted() {
@@ -158,7 +172,7 @@ export default {
     var layer = new VectorLayer({
     source: new VectorSource({
         format: new GPX(),
-        url: 'assets/ruppertsklamm.gpx',
+        url: 'assets/test.gpx',
       }),
       style: function(feature) {
         return style[feature.getGeometry().getType()];
