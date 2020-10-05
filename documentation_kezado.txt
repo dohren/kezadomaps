@@ -1,0 +1,5 @@
+After yarn install, open http://localhost:8080/ in order to try out the app. 
+
+When pressing POSITION, your location will be displayed. This is indicated by the red symbol at your location. Now you are ready for route calculation. You can press start but nothing happens except that START will be replaced by STOP. 
+
+Scrolling can be used to zoom in and out of the map layer. 
