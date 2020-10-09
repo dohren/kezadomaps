@@ -160,7 +160,9 @@ export default {
       this.showToast("SMS send!");
     },
     phoneButtonSoftCenterClicked() {
-      this.$emit('closeSettings', "test");
+      // this.$emit('closeSettings', "test");
+      var sdcard = navigator.getDeviceStorage('sdcard');
+      alert(sdcard);
       this.showToast("Calling Momi...!");
     },
     toggleToastButtonSoftCenterClicked() {

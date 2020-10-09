@@ -15,7 +15,8 @@
   "permissions": {
     "geolocation": {
       "description": "Required to share geolocation"
-    }
+    },
+    "device-storage:sdcard":{ "access": "readonly"}
   },
   "locales": {
     "en-US": {

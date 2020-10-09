@@ -6,6 +6,7 @@ import 'vuelayers/lib/style.css'
 import VueLayers from 'vuelayers'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
+import vueInsomnia from "vue-insomnia";
 
 
 
@@ -13,7 +14,7 @@ Vue.config.productionTip = false
 Vue.use(Buefy, {
   defaultIconPack: 'fa',
 })
-
+Vue.use(vueInsomnia);
 Vue.use(VueLayers, {
   // global data projection, see https://vuelayers.github.io/#/quickstart?id=global-data-projection
   // dataProjection: 'EPSG:4326',

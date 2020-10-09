@@ -59,6 +59,7 @@ import VectorLayer from 'ol/layer/Vector';
 import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
 import GPX from 'ol/format/GPX'; 
 
+
 export default {
   name: 'MapComponent',
   props: {
@@ -68,6 +69,7 @@ export default {
     center: [11.061859, 49.460983],
     position: [0,0],
     zoom: 16,
+    navigating: false,
     delta: 0.0008,
     rotation: 0,
     lalala: 99,
@@ -105,24 +107,27 @@ export default {
         }
         else if (this.softkeys.center == "Start") {
           this.softkeys.center="Stop";
+          this.navigating=true;
+          this.vueInsomnia().on();
         }
         else {
           this.softkeys.center = "POSITION";
+          this.vueInsomnia().off();
+          this.navigating=false;
         }
       }
     },
     onUpdatePosition(coordinate) {
       this.tracking.push(coordinate);
       this.position = coordinate;
-      if (this.softkeys.center == "Stop") {
+      if (this.navigating) {
         this.center = this.position;
-        this.zoom = 16;
       }
 
     }
   },
   mounted() {
-
+    
     let $vm = this;
     this.softkeysComponent = this.$refs.kaiuisoftkeys;
     window.addEventListener("keydown", function(e) {
@@ -141,7 +146,7 @@ export default {
             break;
       }
     });
-
+    
     let style = {
       'Point': new Style({
         image: new CircleStyle({
@@ -182,6 +187,8 @@ export default {
 
     let map = this.$refs.map;
     map.addLayer(layer);
+
+    
   },
   watch: {
     zoom: function() {

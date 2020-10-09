@@ -10,9 +10,11 @@
   "dependencies": {
     "buefy": "^0.9.1",
     "core-js": "^3.6.5",
+    "nosleep": "^2.0.0",
     "sass": "^1.26.10",
     "sass-loader": "^9.0.3",
     "vue": "^2.6.11",
+    "vue-insomnia": "^0.1.0",
     "vue-kaiui": "^0.1.0",
     "vuelayers": "^0.11.27"
   },
