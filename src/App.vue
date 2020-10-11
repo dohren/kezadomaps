@@ -1,8 +1,8 @@
 <template>
   <kaiui-content>
-    <kaiui-header title="Kezado Maps" />
-    <map-component v-if="!this.inSettings" />
-    <settings v-else v-on:closeSettings="onCloseSettings"/>
+    <kaiui-header title="Kezado Maps"/>
+    <map-component :settings="inSettings" v-on:openSettings="onOpenSettings"/>
+    <settings v-if="this.inSettings"  v-on:closeSettings="onCloseSettings"/>
   </kaiui-content>
 </template>
 
@@ -25,20 +25,13 @@ export default {
     onCloseSettings(settings) {
       this.settings = settings;
       this.inSettings = false;
+    },
+    onOpenSettings() {
+      this.inSettings = true;
     }
   },
   mounted() {
-    let $vm = this;
-    window.addEventListener("keydown", function(e) {
-      
-      switch (e.key) {
-        case "Backspace":
-            e.preventDefault();
-            $vm.inSettings = true;
-            break;
-      }
-    });
-   }
+  }
 }
 </script>
 

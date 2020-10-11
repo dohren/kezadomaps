@@ -22,7 +22,6 @@ Vue.use(VueLayers, {
 
 Vue.use(VueKaiUI) 
 
-
 new Vue({
   render: h => h(App),
 }).$mount('#app')

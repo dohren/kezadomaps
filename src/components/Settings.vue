@@ -1,5 +1,5 @@
 <template>
-  <div class="hello">
+  <div class="settings">
    <kaiui-tabs>
       <kaiui-tab-item name="Welcome" selected>
         <kaiui-text text="Welcome to the Vue KaiUI sample App." />
@@ -17,7 +17,7 @@
           title="Action Button"
         />
 
-        <kaiui-button title="Show Notice" v-on:softCenter="showANotice" />
+        <kaiui-button title="GPX öffnen" v-on:softCenter="openGPX" />
       </kaiui-tab-item>
 
       <kaiui-tab-item name="Dialogs" selected>
@@ -160,10 +160,8 @@ export default {
       this.showToast("SMS send!");
     },
     phoneButtonSoftCenterClicked() {
-      // this.$emit('closeSettings', "test");
-      var sdcard = navigator.getDeviceStorage('sdcard');
-      alert(sdcard);
-      this.showToast("Calling Momi...!");
+      this.$emit('closeSettings', "test");
+
     },
     toggleToastButtonSoftCenterClicked() {
       this.showToast("Hi, I'm a Toast!");
@@ -195,7 +193,10 @@ export default {
     dialogLeftSelected() {
       this.showToast("Dialog 'Cancel' selected");
     },
-    showANotice() {
+    openGPX() {
+      // whavar sdcard = navigator.getDeviceStorage('sdcard');
+      // alert(sdcard); 
+      this.showToast("Calling Momi...!");
       this.showNotice(
         "ion-battery-charging",
         "Battery Full",
@@ -207,8 +208,17 @@ export default {
 </script>
 
 <style>
+
 :root {
   --primary-color: red;
   --primary-dark-color: darkred;
+}
+
+.settings {
+  position: fixed;
+  z-index: 3;
+  width: 100%;
+  height:100%;
+  background-color: rgba(0,0,0,0.9);
 }
 </style>

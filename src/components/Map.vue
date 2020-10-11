@@ -1,7 +1,15 @@
 <template>
+
     <div class="map-dialog" >
+
+        <div class="menu" v-if="this.showMenu">
+            <kaiui-button title="Karte" v-on:softCenter="showMenu=false" />
+            <kaiui-button id="first-button" title="Zeige Position" v-on:softCenter="showPosition" />
+            <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" />
+            <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" />
+        </div>
+
         <vl-map class="map" ref="map" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" data-projection="EPSG:4326" >
-          <!-- map view aka ol.View -->
           <vl-view 
             ref="view" 
             :center.sync="center" 
@@ -12,9 +20,9 @@
             <component :is="'vl-source-osm'" v-bind="layer"></component>
           </vl-layer-tile>  
 
-          <vl-feature>
+          <!-- vl-feature>
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
-          </vl-feature>
+          </vl-feature -->
 
           <vl-layer-vector> 
               <vl-feature>
@@ -31,14 +39,19 @@
             <template slot-scope="geoloc">
               <vl-feature v-if="geoloc.position" id="position-feature">
                 <vl-geom-point :coordinates="geoloc.position"></vl-geom-point>
+
                 <vl-style-box>
-                  <vl-style-icon src="./assets/marker.png" :scale="0.4" :anchor="[0.5, 1]"></vl-style-icon>
+                  <!-- vl-style-circle  radius=5>
+                      <vl-style-fill color="rgba(255, 255, 255, 0.2)"></vl-style-fill>
+                      <vl-style-stroke color="green" :width="3"></vl-style-stroke>
+                  </vl-style-circle -->
+                  <vl-style-icon  src="./assets/marker.png" :scale="0.4" :anchor="[0.5, 1]"></vl-style-icon>
                 </vl-style-box>
               </vl-feature>
             </template>
           </vl-geoloc>
-        </vl-map>
-        
+        </vl-map> 
+
         <kaiui-softkeys
           ref="kaiuisoftkeys"
           :softkeys="softkeys"
@@ -63,27 +76,30 @@ import GPX from 'ol/format/GPX';
 export default {
   name: 'MapComponent',
   props: {
-    msg: String,
+    settings: Boolean,
+    msg: String
   },
   data: () => ({
+    showMenu: false,
+    showSettings: false,
     center: [11.061859, 49.460983],
     position: [0,0],
     zoom: 16,
-    navigating: false,
+    onNavigation: false,
+    titleNavigation: "Starte Navigation",
     delta: 0.0008,
     rotation: 0,
     lalala: 99,
-    url: 'assets/ruppertsklamm.gpx',
+    url: 'assets/happurg.gpx',
     softkeys: {
           left: "-",
-          center: 'Position',
+          center: 'Auswahl',
           right: "+",
     },
     softkeysComponent: {},
     layer: [],
     features: [],
-    tracking: [                 
-    ],
+    tracking: [  [11.061859, 49.460983] ],
   }),
   created: function () {
   },
@@ -94,33 +110,49 @@ export default {
      onZoomOut() {
        this.zoom--;
     },
-    onFunctionKey() {
-      console.log(this.position);
+    showPosition(){
+      this.showMenu = false;
       if (this.position[1] == 0) {
         alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
       }
       else {
-        if (this.softkeys.center == "POSITION") {
-          this.softkeys.center = "Start";
-          this.center = this.position;
-          this.zoom = 16;
-        }
-        else if (this.softkeys.center == "Start") {
-          this.softkeys.center="Stop";
-          this.navigating=true;
-          this.vueInsomnia().on();
-        }
-        else {
-          this.softkeys.center = "POSITION";
-          this.vueInsomnia().off();
-          this.navigating=false;
-        }
+        this.center = this.position;
+        this.zoom = 16;
+      }
+    },
+    openSettings() {
+      this.showMenu = false;
+      this.$emit('openSettings');
+    },
+    startNavigation(){
+      this.showMenu = false;
+      if (this.position[1] == 0) {
+        alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
+      }
+      else if (!this.onNavigation) {
+        this.onNavigation = true;
+        this.titleNavigation = "Stoppe Navigation";
+        this.vueInsomnia().on()
+        this.showToast("Navigation gestartet");
+      } 
+      else {
+        this.onNavigation = false;
+        this.titleNavigation = "Starte Navigation";
+        this.vueInsomnia().off();
+        this.showToast("Navigation gestoppt");
+      }
+    },
+    onFunctionKey() {
+      console.log(this.position);
+      if (!this.showMenu) {
+        this.showMenu = true;
       }
     },
     onUpdatePosition(coordinate) {
-      this.tracking.push(coordinate);
       this.position = coordinate;
-      if (this.navigating) {
+      
+      if (this.onNavigation) {
+        this.tracking.push(coordinate);
         this.center = this.position;
       }
 
@@ -130,23 +162,35 @@ export default {
     
     let $vm = this;
     this.softkeysComponent = this.$refs.kaiuisoftkeys;
+
     window.addEventListener("keydown", function(e) {
+      if (!$vm.showSettings && !$vm.showMenu) {
+        switch (e.key) {
+          case "ArrowLeft":
+              $vm.center = [$vm.center[0] - $vm.delta, $vm.center[1]];
+              break;
+          case "ArrowRight":
+              $vm.center = [$vm.center[0] + $vm.delta, $vm.center[1]];
+              break;
+          case "ArrowUp":
+              $vm.center = [$vm.center[0], $vm.center[1] + $vm.delta];
+              break;
+          case "ArrowDown":
+              $vm.center = [$vm.center[0], $vm.center[1] - $vm.delta];
+              break;
+          
+        }
+      }
       switch (e.key) {
-        case "ArrowLeft":
-            $vm.center = [$vm.center[0] - $vm.delta, $vm.center[1]];
-            break;
-        case "ArrowRight":
-            $vm.center = [$vm.center[0] + $vm.delta, $vm.center[1]];
-            break;
-        case "ArrowUp":
-            $vm.center = [$vm.center[0], $vm.center[1] + $vm.delta];
-            break;
-        case "ArrowDown":
-            $vm.center = [$vm.center[0], $vm.center[1] - $vm.delta];
-            break;
+          case "Backspace":
+              if ($vm.showMenu) {
+                e.preventDefault();
+                $vm.showMenu = false;
+              }
+              break;
       }
     });
-    
+
     let style = {
       'Point': new Style({
         image: new CircleStyle({
@@ -177,7 +221,7 @@ export default {
     var layer = new VectorLayer({
     source: new VectorSource({
         format: new GPX(),
-        url: 'assets/test.gpx',
+        url: 'assets/happurg.gpx',
       }),
       style: function(feature) {
         return style[feature.getGeometry().getType()];
@@ -193,6 +237,12 @@ export default {
   watch: {
     zoom: function() {
       this.delta = 52.4288 / parseFloat(2 ** this.zoom);
+    },
+    settings: function (value) {
+      this.showSettings = value;
+      if (!this.showSettings) {
+        this.showMenu = false;
+      }
     }
   }
 }
@@ -214,9 +264,16 @@ export default {
     .map-dialog
       height: 100%
       width: 100%
-      margin-top: -18px
 
-    .map-dialog .kaiui-softkeys 
+    .map-dialog .menu
+      position: fixed 
+      z-index: 2
+      width: 100%
+      height:100%
+      background-color: rgba(0,0,0,0.5)
+
+
+    .ap-dialogm .kaiui-softkeys 
       position: absolute
       bottom: 0
       left: 0
@@ -231,6 +288,8 @@ export default {
       padding: 0 5px
       line-height: 26px
 
+    .map-dialog .ol-zoom
+      display: none
 
     .map-dialog .kaiui-softkeys .kaiui-left,
       .kaiui-dialog .kaiui-softkeys .kaiui-right 
@@ -240,9 +299,6 @@ export default {
       letter-spacing: -0.5px
       box-sizing: border-box
       text-overflow: ellipsis
-
-    .map-dialog .ol-zoom-in, .map-dialog .ol-zoom-out
-      display: none
 
 
 </style>
