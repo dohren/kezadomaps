@@ -1,26 +1,26 @@
 {
-  "version": "1.0.0",
-  "name": "sample-vue-kaiui-app",
+  "version": "1.0.1",
+  "name": "Kezado Maps",
   "description": "Kezado Maps",
-  "type": "web",
+  "type": "privileged",
   "launch_path": "/index.html",
   "icons": {
     "56": "/assets/icons/kezado_logo_56.png",
     "112": "/assets/icons/kezado_logo_112.png"
   },
   "developer": {
-    "name": "Sebastian Baar",
-    "url": "https://github.com/sebastianbaar"
+    "name": "Andreas Dohren",
+    "url": "https://github.com/dohren"
   },
   "permissions": {
     "geolocation": {
       "description": "Required to share geolocation"
     },
-    "device-storage:sdcard":{ "access": "readonly"}
+    "device-storage:sdcard": { "access": "readonly" }
   },
   "locales": {
     "en-US": {
-      "name": "sample-vue-kaiui-app",
+      "name": "kezado-maps",
       "subtitle": "Sample Vue KaiUI App for KaiOS",
       "description": "Sample Vue KaiUI App for KaiOS"
     }

@@ -3,10 +3,10 @@
     <div class="map-dialog" >
 
         <div class="menu" v-if="this.showMenu">
-            <kaiui-button title="Karte" v-on:softCenter="showMenu=false" />
-            <kaiui-button id="first-button" title="Zeige Position" v-on:softCenter="showPosition" />
-            <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" />
-            <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" />
+            <kaiui-button title="Karte" v-on:softCenter="showMenu=false" v-bind:softkeys="softkeys"/>
+            <kaiui-button id="first-button" title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
+            <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
+            <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" v-bind:softkeys="softkeys"/>
         </div>
 
         <vl-map class="map" ref="map" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" data-projection="EPSG:4326" >
@@ -61,7 +61,6 @@
           @softkey-center-pressed="onFunctionKey"
         />
 
-
     </div>
 </template>
 
@@ -76,12 +75,13 @@ import GPX from 'ol/format/GPX';
 export default {
   name: 'MapComponent',
   props: {
-    settings: Boolean,
-    msg: String
+    showSettings: Boolean,
+    msg: String,
+    settings: Object
   },
   data: () => ({
+    gpxLayer: null,
     showMenu: false,
-    showSettings: false,
     center: [11.061859, 49.460983],
     position: [0,0],
     zoom: 16,
@@ -90,7 +90,7 @@ export default {
     delta: 0.0008,
     rotation: 0,
     lalala: 99,
-    url: 'assets/happurg.gpx',
+    url: '/sdcard/happurg.gpx',
     softkeys: {
           left: "-",
           center: 'Auswahl',
@@ -99,7 +99,7 @@ export default {
     softkeysComponent: {},
     layer: [],
     features: [],
-    tracking: [  [11.061859, 49.460983] ],
+    tracking: [ [11.061859, 49.460983] ],
   }),
   created: function () {
   },
@@ -218,32 +218,38 @@ export default {
       })
     };
 
-    var layer = new VectorLayer({
+    this.gpxLayer = new VectorLayer({
     source: new VectorSource({
-        format: new GPX(),
-        url: 'assets/happurg.gpx',
-      }),
+      format: new GPX(),
+      url: 'assets/happurg.gpx',
+    }),
       style: function(feature) {
         return style[feature.getGeometry().getType()];
       }
     });
-    layer.setZIndex(20);
-
+    this.gpxLayer.setZIndex(20);
     let map = this.$refs.map;
-    map.addLayer(layer);
+    map.addLayer(this.gpxLayer);
 
-    
   },
   watch: {
     zoom: function() {
       this.delta = 52.4288 / parseFloat(2 ** this.zoom);
     },
-    settings: function (value) {
+    showSettings: function (value) {
       this.showSettings = value;
       if (!this.showSettings) {
         this.showMenu = false;
       }
+    },
+    settings: function (value) {
+      let feature = (new GPX()).readFeatures(value.gpxData, {featureProjection: 'EPSG:3857'})
+      console.log(feature);
+      this.gpxLayer.getSource().clear();
+      this.gpxLayer.getSource().addFeatures(feature);
+
     }
+
   }
 }
 </script>
@@ -299,6 +305,5 @@ export default {
       letter-spacing: -0.5px
       box-sizing: border-box
       text-overflow: ellipsis
-
 
 </style>

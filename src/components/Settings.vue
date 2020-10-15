@@ -1,54 +1,47 @@
 <template>
   <div class="settings">
    <kaiui-tabs>
-      <kaiui-tab-item name="Welcome" selected>
-        <kaiui-text text="Welcome to the Vue KaiUI sample App." />
-        <kaiui-text text="See all components live in action! Enjoy :-)" />
-      </kaiui-tab-item>
 
-      <kaiui-tab-item name="Buttons & Alerts" selected>
-        <kaiui-separator title="Buttons" />
+      <kaiui-tab-item name="Einstellungen" selected>
         <kaiui-button
-          v-bind:softkeys="softkeysPhone"
+          v-bind:softkeys="softkeys"
           v-on:softRight="phoneButtonSoftRightClicked"
           v-on:softCenter="phoneButtonSoftCenterClicked"
-          icon="ion-ios-telephone"
-          iconRight
-          title="Action Button"
+          title="Zurück zur Karte"
         />
 
-        <kaiui-button title="GPX öffnen" v-on:softCenter="openGPX" />
+        <kaiui-button 
+          v-bind:softkeys="softkeys"
+          v-on:softCenter="onFileBrowser" 
+          title="Strecke importieren" 
+        />
+
+        <kaiui-dialog
+          title="Auswahl"
+          v-model="showFileBrowser"
+          v-bind:softkeys="softkeysDialog"
+          v-on:="valueSelectorDialogLeftSelected"
+        >
+
+          <kaiui-list-item 
+            :primaryText="file" 
+            v-bind:softkeys="softkeysDialog"
+            v-bind:key="file.name"
+            v-on:softCenter="onFileSelect(file)"
+            v-for="file in files" 
+          />
+
+        </kaiui-dialog>
       </kaiui-tab-item>
 
       <kaiui-tab-item name="Dialogs" selected>
         <kaiui-button title="Dialog" v-on:softCenter="showDialog" />
 
-        <kaiui-button title="Value Selector Dialog" v-on:softCenter="showValueSelectorDialog" />
-
         <kaiui-button icon="ion-android-calendar" title="ToDo: Date/Time Selector" />
 
         <kaiui-dialog
-          title="Select"
-          v-model="shouldShowValueSelectorDialog"
-          v-on:softLeft="valueSelectorDialogLeftSelected"
-          v-on:softRight="valueSelectorDialogRightSelected"
-        >
-          <kaiui-checkbox
-            primaryText="Checkbox One"
-            secondaryText="Subtitle for Checkbox List Item Title"
-          />
-          <kaiui-checkbox
-            primaryText="Checkbox Two"
-            secondaryText="Subtitle for Checkbox List Item Title"
-          />
-          <kaiui-checkbox
-            primaryText="Checkbox Three"
-            secondaryText="Subtitle for Checkbox List Item Title"
-          />
-        </kaiui-dialog>
-
-        <kaiui-dialog
           title="Congratulations"
+          v-bind:softkey="softkeysDialog"
           v-model="shouldShowDialog"
           v-on:softLeft="dialogLeftSelected"
           v-on:softRight="dialogRightSelected"
@@ -149,8 +142,23 @@ export default {
     sliderStartValue: 10,
     sliderTextValue: "Slider value is 10",
     shouldShowDialog: false,
-    shouldShowValueSelectorDialog: false,
-    selectedInputValue: "Two"
+    showFileBrowser: false,
+    selectedInputValue: "Two",
+    files: [],
+    sdcard: null,
+    softkeys: {
+      left: "-",
+      center: 'Auswahl',
+      right: "+",
+    },
+    softkeysDialog: {
+      left: "abbr",
+      center: 'Auswahl',
+      right: "",
+    },
+    settings: {
+      gpxData: null
+    }
   }),
   methods: {
     toggleSoftkeys(input) {
@@ -160,7 +168,7 @@ export default {
       this.showToast("SMS send!");
     },
     phoneButtonSoftCenterClicked() {
-      this.$emit('closeSettings', "test");
+      this.$emit('closeSettings', this.settings);
 
     },
     toggleToastButtonSoftCenterClicked() {
@@ -175,9 +183,7 @@ export default {
     onMultiInputChanged(newValue) {
       this.multiInputFieldText = newValue;
     },
-    showValueSelectorDialog() {
-      this.shouldShowValueSelectorDialog = !this.shouldShowValueSelectorDialog;
-    },
+ 
     valueSelectorDialogRightSelected() {
       this.showToast("Dialog 'OK' selected");
     },
@@ -193,16 +199,78 @@ export default {
     dialogLeftSelected() {
       this.showToast("Dialog 'Cancel' selected");
     },
-    openGPX() {
-      // whavar sdcard = navigator.getDeviceStorage('sdcard');
-      // alert(sdcard); 
-      this.showToast("Calling Momi...!");
+    onFileSelect(filename) {
+    this.showFileBrowser = !this.showFileBrowser;
+      
+    var request = this.sdcard.get(filename);
+    
+    let $vm = this;
+    
+    request.onsuccess = function () {
+        var file = this.result;
+        var fileReader = new FileReader();
+        fileReader.onload = function(event) {
+          console.log("start " + $vm.settings);
+          $vm.settings.gpxData = event.target.result;
+          console.log($vm.settings);
+        }
+        fileReader.readAsText(file);
+      }
+
+      request.onerror = function () {
+        console.warn("Unable to get the file: " + this.error);
+      }
+    },
+    onFileBrowser() {
+      
+      this.sdcard = navigator.getDeviceStorage('sdcard');
+      // var request = sdcard.get("happurg.gpx");
+      
+      var param = {
+          since: new Date((+new Date()) - 7*24*60*60*1000),
+      }
+
+      var cursor = this.sdcard.enumerate(param);
+
+      cursor.onerror = function (event) {
+        console.log(event);
+      }
+
+      var temp = [];
+      cursor.onsuccess = function () {
+          if (this.result) {
+              var file = this.result;
+              console.log("File updated on: " + file.lastModifiedDate);
+              console.log(file.name);
+              var filename = file.name.substring(file.name.lastIndexOf("/") + 1, file.name.length);
+              
+              if (filename.includes(".gpx")){
+                temp.push(filename);
+              }
+
+              this.continue();
+          }
+      }
+      this.files = temp;
+
+      if ( temp.length < 1 ) {
+        this.showFileBrowser = !this.showFileBrowser;
+      }
+      else {
+          this.showToast("Keine Karten gefunden.");
+      }
+
+       /*
       this.showNotice(
         "ion-battery-charging",
         "Battery Full",
         "Battery is fully charged"
       );
+      */
     }
+  },
+  mounted() {
+    
   }
 };
 </script>
@@ -216,9 +284,14 @@ export default {
 
 .settings {
   position: fixed;
-  z-index: 3;
+  z-index: 5;
   width: 100%;
   height:100%;
   background-color: rgba(0,0,0,0.9);
 }
+
+.kaiui-dialog-wrapper {
+  padding-bottom: 30px;
+}
+
 </style>

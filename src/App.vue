@@ -1,8 +1,8 @@
 <template>
   <kaiui-content>
     <kaiui-header title="Kezado Maps"/>
-    <map-component :settings="inSettings" v-on:openSettings="onOpenSettings"/>
-    <settings v-if="this.inSettings"  v-on:closeSettings="onCloseSettings"/>
+    <settings :settings="settings" v-if="this.inSettings"  v-on:closeSettings="onCloseSettings"/>
+    <map-component :settings="settings" :ShowSettings="inSettings" v-on:openSettings="onOpenSettings"/>
   </kaiui-content>
 </template>
 
@@ -17,9 +17,11 @@ export default {
     MapComponent,
     Settings
   },
-  data: () => ({
+  data: () =>({
     inSettings: false,
-    settings: ""
+    settings: {
+      gpxData: ""
+    }
   }),
   methods: {
     onCloseSettings(settings) {
