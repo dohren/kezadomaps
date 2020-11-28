@@ -1,24 +1,9 @@
-# kezadomaps
+# codemix-basic-vue
 
-## Project setup
-```
-yarn install
-```
+Template for project creation of Vue inside CodeMix
 
-### Compiles and hot-reloads for development
-```
-yarn serve
-```
+# Contents
 
-### Compiles and minifies for production
-```
-yarn build
-```
+This template project is just an example Hello World that guide you through the use of Vue to build a very simple web application that display the Hello Vue Greeting.
 
-### Lints and fixes files
-```
-yarn lint
-```
-
-### Customize configuration
-See [Configuration Reference](https://cli.vuejs.org/config/).
+This example uses the `<script>` to include Vue and is the simplest way to get started with Vue development.

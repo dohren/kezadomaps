@@ -16,9 +16,9 @@
             :zoom.sync="zoom" >
           </vl-view>
 
-          <vl-layer-tile>
+          <!-- vl-layer-tile>
             <component :is="'vl-source-osm'" v-bind="layer"></component>
-          </vl-layer-tile>  
+          </vl-layer-tile -->  
 
           <!-- vl-feature>
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
@@ -70,6 +70,8 @@ import VectorSource from 'ol/source/Vector';
 import VectorLayer from 'ol/layer/Vector';
 import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
 import GPX from 'ol/format/GPX'; 
+import XYZ from 'ol/source/XYZ';
+import TileLayer from 'ol/layer/Tile' 
 
 
 export default {
@@ -155,7 +157,62 @@ export default {
         this.tracking.push(coordinate);
         this.center = this.position;
       }
+    },
+    createTileLayer(){
+      let tileLayer = new TileLayer({
+        source: new XYZ({
+          url: "http://dohren.synology.me/proxy.php?tile={z}/{x}/{y}",
+          alpha: true, 
+          isBaseLayer: false,
+          tileOptions: {
+            crossOriginKeyword: 'anonymous',
+            transitionEffect: null
+    }
+        })
+      })
+      let map = this.$refs.map;
+      map.addLayer(tileLayer);
+  },
+    createNavigationLayer() {
+    let style = {
+      'Point': new Style({
+        image: new CircleStyle({
+          fill: new Fill({
+            color: 'rgba(255,255,0,0.4)'
+          }),
+          radius: 5,
+          stroke: new Stroke({
+            color: '#f60404 	',
+            width: 1
+          })
+        })
+      }),
+      'LineString': new Style({
+        stroke: new Stroke({
+          color: '#f60404 	',
+          width: 3
+        })
+      }),
+      'MultiLineString': new Style({
+        stroke: new Stroke({
+          color: '#f60404 	',
+          width: 3
+        })
+      })
+    };
 
+    this.gpxLayer = new VectorLayer({
+    source: new VectorSource({
+      format: new GPX(),
+        url: 'assets/leer.gpx',
+    }),
+      style: function(feature) {
+        return style[feature.getGeometry().getType()];
+      }
+    });
+    this.gpxLayer.setZIndex(20);
+    let map = this.$refs.map;
+    map.addLayer(this.gpxLayer);
     }
   },
   mounted() {
@@ -190,46 +247,8 @@ export default {
               break;
       }
     });
-
-    let style = {
-      'Point': new Style({
-        image: new CircleStyle({
-          fill: new Fill({
-            color: 'rgba(255,255,0,0.4)'
-          }),
-          radius: 5,
-          stroke: new Stroke({
-            color: '#f60404 	',
-            width: 1
-          })
-        })
-      }),
-      'LineString': new Style({
-        stroke: new Stroke({
-          color: '#f60404 	',
-          width: 3
-        })
-      }),
-      'MultiLineString': new Style({
-        stroke: new Stroke({
-          color: '#f60404 	',
-          width: 3
-        })
-      })
-    };
-
-    this.gpxLayer = new VectorLayer({
-    source: new VectorSource({
-      format: new GPX(),
-      url: 'assets/happurg.gpx',
-    }),
-      style: function(feature) {
-        return style[feature.getGeometry().getType()];
-      }
-    });
-    this.gpxLayer.setZIndex(20);
-    let map = this.$refs.map;
-    map.addLayer(this.gpxLayer);
+    this.createTileLayer();
+    this.createNavigationLayer();
 
   },
   watch: {

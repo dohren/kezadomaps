@@ -8,7 +8,7 @@ import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import vueInsomnia from "vue-insomnia";
 
-
+console.log(Vue.version); 
 
 Vue.config.productionTip = false
 Vue.use(Buefy, {
