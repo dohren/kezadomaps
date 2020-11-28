@@ -3,8 +3,8 @@
     <div class="map-dialog" >
 
         <div class="menu" v-if="this.showMenu">
-            <kaiui-button title="Karte" v-on:softCenter="showMenu=false" v-bind:softkeys="softkeys"/>
-            <kaiui-button id="first-button" title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
+            <kaiui-button ref="first" title="Karte" v-on:softCenter="toggleMenu" v-bind:softkeys="softkeys" />
+            <kaiui-button title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
             <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
             <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" v-bind:softkeys="softkeys"/>
         </div>
@@ -105,6 +105,8 @@ export default {
   }),
   created: function () {
   },
+  updated: function () {
+  },
   methods: {
     onZoomIn() {
       this.zoom++;
@@ -112,10 +114,13 @@ export default {
      onZoomOut() {
        this.zoom--;
     },
+    toggleMenu() {
+      this.showMenu = false; 
+    },
     showPosition(){
       this.showMenu = false;
       if (this.position[1] == 0) {
-        alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
+        alert("Position konnte nicht ermittelt werden. Bitte versuche es erneut.");
       }
       else {
         this.center = this.position;
@@ -129,7 +134,7 @@ export default {
     startNavigation(){
       this.showMenu = false;
       if (this.position[1] == 0) {
-        alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
+        alert("Position konnte nicht ermittelt werden. Bitte versuche es erneut.");
       }
       else if (!this.onNavigation) {
         this.onNavigation = true;
@@ -144,11 +149,20 @@ export default {
         this.showToast("Navigation gestoppt");
       }
     },
-    onFunctionKey() {
-      console.log(this.position);
-      if (!this.showMenu) {
-        this.showMenu = true;
-      }
+    onFunctionKey() {     
+      if (!this.showMenu){
+          this.showMenu = true;
+
+          let keydown = new KeyboardEvent("keydown", {
+            key: 'ArrowUp', 
+            bubbles: true,
+            cancelable: true
+          })
+
+          setTimeout(() => document.body.dispatchEvent(keydown), 250);
+
+        }       
+      
     },
     onUpdatePosition(coordinate) {
       this.position = coordinate;
@@ -249,6 +263,8 @@ export default {
     });
     this.createTileLayer();
     this.createNavigationLayer();
+
+
 
   },
   watch: {
