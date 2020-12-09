@@ -7,6 +7,7 @@ import VueLayers from 'vuelayers'
 import Buefy from 'buefy'
 import 'buefy/dist/buefy.css'
 import vueInsomnia from "vue-insomnia";
+import '@/generalMixin'
 
 console.log(Vue.version); 
 
@@ -25,3 +26,4 @@ Vue.use(VueKaiUI)
 new Vue({
   render: h => h(App),
 }).$mount('#app')
+

@@ -152,15 +152,7 @@ export default {
     onFunctionKey() {     
       if (!this.showMenu){
           this.showMenu = true;
-
-          let keydown = new KeyboardEvent("keydown", {
-            key: 'ArrowUp', 
-            bubbles: true,
-            cancelable: true
-          })
-
-          setTimeout(() => document.body.dispatchEvent(keydown), 250);
-
+          this.selectFirstElement();
         }       
       
     },
