@@ -34,6 +34,11 @@
               </vl-style-box>
           </vl-layer-vector>
 
+        <vl-layer-tile>
+          <!-- <vl-source-osm></vl-source-osm> -->
+          <vl-source-xyz :url="'https://b.tile.openstreetmap.org/{z}/{x}/{y}.png'"  :crossOrigin="'anonymous'"></vl-source-xyz>
+        </vl-layer-tile>
+
         
           <vl-geoloc @update:position="onUpdatePosition">
             <template slot-scope="geoloc">
@@ -167,7 +172,8 @@ export default {
     createTileLayer(){
       let tileLayer = new TileLayer({
         source: new XYZ({
-          url: "http://dohren.synology.me/proxy.php?tile={z}/{x}/{y}",
+          //url: "http://dohren.synology.me/proxy.php?tile={z}/{x}/{y}",
+          url: "https://b..openstreetmp.org/{z}/{x}/{y}.png",
           alpha: true, 
           isBaseLayer: false,
           tileOptions: {
