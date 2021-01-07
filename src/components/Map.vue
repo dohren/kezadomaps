@@ -16,9 +16,9 @@
             :zoom.sync="zoom" >
           </vl-view>
 
-          <!-- vl-layer-tile>
+          <vl-layer-tile>
             <component :is="'vl-source-osm'" v-bind="layer"></component>
-          </vl-layer-tile -->  
+          </vl-layer-tile>  
 
           <!-- vl-feature>
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
