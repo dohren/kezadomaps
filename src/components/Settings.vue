@@ -169,7 +169,6 @@ export default {
     },
     phoneButtonSoftCenterClicked() {
       this.$emit('closeSettings', this.settings);
-
     },
     toggleToastButtonSoftCenterClicked() {
       this.showToast("Hi, I'm a Toast!");
@@ -200,13 +199,13 @@ export default {
       this.showToast("Dialog 'Cancel' selected");
     },
     onFileSelect(filename) {
-    this.showFileBrowser = !this.showFileBrowser;
+      this.showFileBrowser = !this.showFileBrowser;
+        
+      var request = this.sdcard.get(filename);
       
-    var request = this.sdcard.get(filename);
-    
-    let $vm = this;
-    
-    request.onsuccess = function () {
+      let $vm = this;
+      
+      request.onsuccess = function () {
         var file = this.result;
         var fileReader = new FileReader();
         fileReader.onload = function(event) {
@@ -214,12 +213,14 @@ export default {
           $vm.settings.gpxData = event.target.result;
           console.log($vm.settings);
         }
-        fileReader.readAsText(file);
+        fileReader.readAsText(file);  
       }
+      this.selectFirstElement();
 
       request.onerror = function () {
         console.warn("Unable to get the file: " + this.error);
       }
+      
     },
     onFileBrowser() {
       

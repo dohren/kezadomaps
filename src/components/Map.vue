@@ -5,9 +5,17 @@
         <div class="menu" v-if="this.showMenu">
             <kaiui-button ref="first" title="Karte" v-on:softCenter="toggleMenu" v-bind:softkeys="softkeys" />
             <kaiui-button title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
-            <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
+            <kaiui-button title="Starte Navigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
             <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" v-bind:softkeys="softkeys"/>
         </div>
+        
+        <kaiui-dialog
+          title="Schließen"
+          v-model="showCloseDialog"
+        >
+          <kaiui-text text="Willst du die Navigation wirklich beenden?" />
+        </kaiui-dialog>
+
 
         <vl-map class="map" ref="map" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" data-projection="EPSG:4326" >
           <vl-view 
@@ -60,7 +68,7 @@
         <kaiui-softkeys
           ref="kaiuisoftkeys"
           :softkeys="softkeys"
-          :component="this.softkeysComponent"
+          :component="softkeysComponent"
           @softkey-left-pressed="onZoomOut"
           @softkey-right-pressed="onZoomIn"
           @softkey-center-pressed="onFunctionKey"
@@ -84,12 +92,12 @@ export default {
     settings: Object
   },
   data: () => ({
+    showCloseDialog: false,
     showMenu: false,
     center: [11.061859, 49.460983],
     position: [0,0],
     zoom: 16,
     onNavigation: false,
-    titleNavigation: "Starte Navigation",
     delta: 0.0008,
     rotation: 0,
     lalala: 99,
@@ -99,6 +107,11 @@ export default {
           right: "+",
     },
     softkeysComponent: {},
+    softkeysDialog: {
+      left: "abbr",
+      center: "",
+      right: "ok",
+    },
     layer: [],
     features: [],
     tracking: [ [11.061859, 49.460983] ],
@@ -172,7 +185,7 @@ export default {
     this.softkeysComponent = this.$refs.kaiuisoftkeys;
 
     window.addEventListener("keydown", function(e) {
-      if (!$vm.showSettings && !$vm.showMenu) {
+      if (!$vm.showSettings && !$vm.showMenu && !$vm.showCloseDialog) {
         switch (e.key) {
           case "ArrowLeft":
               $vm.center = [$vm.center[0] - $vm.delta, $vm.center[1]];
@@ -196,6 +209,10 @@ export default {
                 $vm.showMenu = false;
               }
               break;
+          case "EndCall": 
+            $vm.showCloseDialog = true;
+            e.preventDefault();
+            break;
       }
     });
   },

@@ -2,7 +2,7 @@
   <kaiui-content>
     <kaiui-header title="Kezado Maps"/>
     <settings :settings="settings" v-if="this.inSettings"  v-on:closeSettings="onCloseSettings"/>
-    <map-component :settings="settings" :ShowSettings="inSettings" v-on:openSettings="onOpenSettings"/>
+    <map-component :settings="settings" :showSettings="inSettings" v-on:openSettings="onOpenSettings"/>
   </kaiui-content>
 </template>
 
