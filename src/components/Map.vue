@@ -3,8 +3,8 @@
     <div class="map-dialog" >
 
         <div class="menu" v-if="this.showMenu">
-            <kaiui-button title="Karte" v-on:softCenter="showMenu=false" v-bind:softkeys="softkeys"/>
-            <kaiui-button id="first-button" title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
+            <kaiui-button ref="first" title="Karte" v-on:softCenter="toggleMenu" v-bind:softkeys="softkeys" />
+            <kaiui-button title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
             <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
             <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" v-bind:softkeys="softkeys"/>
         </div>
@@ -15,6 +15,11 @@
             :center.sync="center" 
             :zoom.sync="zoom" >
           </vl-view>
+          <route :route="settings.gpxData"/>
+
+          <vl-layer-tile>
+            <vl-source-xyz url="https://b.tile.openstreetmap.org/{z}/{x}/{y}.png" crossOrigin="anonymous"></vl-source-xyz>
+          </vl-layer-tile>
 
           <vl-layer-tile>
             <component :is="'vl-source-osm'" v-bind="layer"></component>
@@ -23,7 +28,7 @@
           <!-- vl-feature>
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
           </vl-feature -->
-
+    
           <vl-layer-vector> 
               <vl-feature>
                 <vl-geom-line-string :coordinates="this.tracking"></vl-geom-line-string>
@@ -66,23 +71,19 @@
 
 
 <script>
-import VectorSource from 'ol/source/Vector';
-import VectorLayer from 'ol/layer/Vector';
-import {Circle as CircleStyle, Fill, Stroke, Style} from 'ol/style';
-import GPX from 'ol/format/GPX'; 
-import XYZ from 'ol/source/XYZ';
-import TileLayer from 'ol/layer/Tile' 
-
+import Route from './Route.vue';
 
 export default {
   name: 'MapComponent',
+  components: {
+    Route
+  },
   props: {
     showSettings: Boolean,
     msg: String,
     settings: Object
   },
   data: () => ({
-    gpxLayer: null,
     showMenu: false,
     center: [11.061859, 49.460983],
     position: [0,0],
@@ -92,7 +93,6 @@ export default {
     delta: 0.0008,
     rotation: 0,
     lalala: 99,
-    url: '/sdcard/happurg.gpx',
     softkeys: {
           left: "-",
           center: 'Auswahl',
@@ -105,6 +105,8 @@ export default {
   }),
   created: function () {
   },
+  updated: function () {
+  },
   methods: {
     onZoomIn() {
       this.zoom++;
@@ -112,10 +114,13 @@ export default {
      onZoomOut() {
        this.zoom--;
     },
+    toggleMenu() {
+      this.showMenu = false; 
+    },
     showPosition(){
       this.showMenu = false;
       if (this.position[1] == 0) {
-        alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
+        alert("Position konnte nicht ermittelt werden. Bitte versuche es erneut.");
       }
       else {
         this.center = this.position;
@@ -129,7 +134,7 @@ export default {
     startNavigation(){
       this.showMenu = false;
       if (this.position[1] == 0) {
-        alert("Postiion konnte nicht ermittelt werden. Bitte versuche es erneut.");
+        alert("Position konnte nicht ermittelt werden. Bitte versuche es erneut.");
       }
       else if (!this.onNavigation) {
         this.onNavigation = true;
@@ -144,11 +149,12 @@ export default {
         this.showToast("Navigation gestoppt");
       }
     },
-    onFunctionKey() {
-      console.log(this.position);
-      if (!this.showMenu) {
-        this.showMenu = true;
-      }
+    onFunctionKey() {     
+      if (!this.showMenu){
+          this.showMenu = true;
+          this.selectFirstElement();
+        }       
+      
     },
     onUpdatePosition(coordinate) {
       this.position = coordinate;
@@ -158,62 +164,7 @@ export default {
         this.center = this.position;
       }
     },
-    createTileLayer(){
-      let tileLayer = new TileLayer({
-        source: new XYZ({
-          url: "http://dohren.synology.me/proxy.php?tile={z}/{x}/{y}",
-          alpha: true, 
-          isBaseLayer: false,
-          tileOptions: {
-            crossOriginKeyword: 'anonymous',
-            transitionEffect: null
-    }
-        })
-      })
-      let map = this.$refs.map;
-      map.addLayer(tileLayer);
-  },
-    createNavigationLayer() {
-    let style = {
-      'Point': new Style({
-        image: new CircleStyle({
-          fill: new Fill({
-            color: 'rgba(255,255,0,0.4)'
-          }),
-          radius: 5,
-          stroke: new Stroke({
-            color: '#f60404 	',
-            width: 1
-          })
-        })
-      }),
-      'LineString': new Style({
-        stroke: new Stroke({
-          color: '#f60404 	',
-          width: 3
-        })
-      }),
-      'MultiLineString': new Style({
-        stroke: new Stroke({
-          color: '#f60404 	',
-          width: 3
-        })
-      })
-    };
 
-    this.gpxLayer = new VectorLayer({
-    source: new VectorSource({
-      format: new GPX(),
-        url: 'assets/leer.gpx',
-    }),
-      style: function(feature) {
-        return style[feature.getGeometry().getType()];
-      }
-    });
-    this.gpxLayer.setZIndex(20);
-    let map = this.$refs.map;
-    map.addLayer(this.gpxLayer);
-    }
   },
   mounted() {
     
@@ -247,9 +198,6 @@ export default {
               break;
       }
     });
-    this.createTileLayer();
-    this.createNavigationLayer();
-
   },
   watch: {
     zoom: function() {
@@ -260,13 +208,6 @@ export default {
       if (!this.showSettings) {
         this.showMenu = false;
       }
-    },
-    settings: function (value) {
-      let feature = (new GPX()).readFeatures(value.gpxData, {featureProjection: 'EPSG:3857'})
-      console.log(feature);
-      this.gpxLayer.getSource().clear();
-      this.gpxLayer.getSource().addFeatures(feature);
-
     }
 
   }
@@ -297,32 +238,7 @@ export default {
       height:100%
       background-color: rgba(0,0,0,0.5)
 
-
-    .ap-dialogm .kaiui-softkeys 
-      position: absolute
-      bottom: 0
-      left: 0
-      right: 0
-      background: var(--secondary-dark-color)
-      min-height: 30px
-      max-height: 30px
-      border-top: 2px var(--softkeys-border-color) solid
-      display: flex
-      flex-shrink: 0
-      white-space: nowrap
-      padding: 0 5px
-      line-height: 26px
-
     .map-dialog .ol-zoom
       display: none
-
-    .map-dialog .kaiui-softkeys .kaiui-left,
-      .kaiui-dialog .kaiui-softkeys .kaiui-right 
-      color: var(--softkeys-text-color)
-      overflow: hidden
-      width: 100%
-      letter-spacing: -0.5px
-      box-sizing: border-box
-      text-overflow: ellipsis
 
 </style>
