@@ -27,11 +27,11 @@ export default {
     onCloseSettings(settings) {
       this.settings = settings;
       this.inSettings = false;
-      this.selectFirstElement();
+      this.setFirstIndexActive();
     },
     onOpenSettings() {
       this.inSettings = true;
-      this.selectFirstElement();
+      this.setFirstIndexActive();
     }
   },
   mounted() {

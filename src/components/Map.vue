@@ -32,6 +32,11 @@
           </vl-layer-tile>
 
         
+          <vl-layer-tile>
+            <component :is="'vl-source-osm'" v-bind="layer"></component>
+          </vl-layer-tile>  
+
+
           <vl-geoloc @update:position="onUpdatePosition">
             <template slot-scope="geoloc">
               <vl-feature v-if="geoloc.position" id="position-feature">
@@ -141,7 +146,7 @@ export default {
     onFunctionKey() {     
       if (!this.showMenu){
           this.showMenu = true;
-          this.selectFirstElement();
+          this.setFirstIndexActive();
         }       
       
     },

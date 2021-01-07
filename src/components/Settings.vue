@@ -12,7 +12,7 @@
         <kaiui-button 
           v-bind:softkeys="softkeys"
           v-on:softCenter="onFileBrowser" 
-          title="Strecke importieren" 
+          title="Route importieren" 
         />
 
         <kaiui-dialog
@@ -67,13 +67,13 @@ export default {
 
     },
     onFileSelect(filename) {
-    this.showFileBrowser = !this.showFileBrowser;
+      this.showFileBrowser = !this.showFileBrowser;
+        
+      var request = this.sdcard.get(filename);
       
-    var request = this.sdcard.get(filename);
-    
-    let $vm = this;
-    
-    request.onsuccess = function () {
+      let $vm = this;
+      
+      request.onsuccess = function () {
         var file = this.result;
         var fileReader = new FileReader();
         fileReader.onload = function(event) {

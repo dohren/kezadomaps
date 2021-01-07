@@ -52,7 +52,7 @@ export default {
 		this.gpxLayer = new VectorLayer({
 		source: new VectorSource({
 		format: new GPX(),
-			url: 'assets/date.gpx',
+			url: 'assets/empty.gpx',
 		}),
 		style: function(feature) {
 			return style[feature.getGeometry().getType()];
@@ -68,7 +68,6 @@ export default {
       console.log(feature);
       this.gpxLayer.getSource().clear();
       this.gpxLayer.getSource().addFeatures(feature);
-
     }
   }
 }
