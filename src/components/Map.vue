@@ -8,14 +8,6 @@
             <kaiui-button title="Starte Navigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
             <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" v-bind:softkeys="softkeys"/>
         </div>
-        
-        <kaiui-dialog
-          title="Schließen"
-          v-model="showCloseDialog"
-        >
-          <kaiui-text text="Willst du die Navigation wirklich beenden?" />
-        </kaiui-dialog>
-
 
         <vl-map class="map" ref="map" :load-tiles-while-animating="true" :load-tiles-while-interacting="true" data-projection="EPSG:4326" >
           <vl-view 
@@ -92,7 +84,6 @@ export default {
     settings: Object
   },
   data: () => ({
-    showCloseDialog: false,
     showMenu: false,
     center: [11.061859, 49.460983],
     position: [0,0],
@@ -210,8 +201,8 @@ export default {
               }
               break;
           case "EndCall": 
-            $vm.showCloseDialog = true;
             e.preventDefault();
+            this.showToast("Bitte Zurück Button nutzen.");
             break;
       }
     });
