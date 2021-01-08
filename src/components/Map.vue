@@ -5,7 +5,7 @@
         <div class="menu" v-if="this.showMenu">
             <kaiui-button ref="first" title="Karte" v-on:softCenter="toggleMenu" v-bind:softkeys="softkeys" />
             <kaiui-button title="Zeige Position" v-on:softCenter="showPosition" v-bind:softkeys="softkeys"/>
-            <kaiui-button title="Starte Navigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
+            <kaiui-button :title="this.titleNavigation" v-on:softCenter="startNavigation" v-bind:softkeys="softkeys"/>
             <kaiui-button title="Einstellungen" v-on:softCenter="openSettings" v-bind:softkeys="softkeys"/>
         </div>
 
@@ -18,12 +18,13 @@
           <route :route="settings.gpxData"/>
 
           <vl-layer-tile>
-            <vl-source-xyz url="https://b.tile.openstreetmap.org/{z}/{x}/{y}.png" crossOrigin="anonymous"></vl-source-xyz>
+            <!-- vl-source-xyz url="https://b.tile.openstreetmap.org/{z}/{x}/{y}.png" crossOrigin="anonymous"></vl-source-xyz -->
+            <vl-source-xyz url="http://dohren.synology.me/proxy.php?tile={z}/{x}/{y}" crossOrigin="anonymous"></vl-source-xyz>
           </vl-layer-tile>
 
-          <vl-layer-tile>
+          <!-- vl-layer-tile>
             <component :is="'vl-source-osm'" v-bind="layer"></component>
-          </vl-layer-tile>  
+          </vl-layer-tile -->  
 
           <!-- vl-feature>
             <vl-geom-point :coordinates="this.center"></vl-geom-point>
@@ -89,6 +90,7 @@ export default {
     position: [0,0],
     zoom: 16,
     onNavigation: false,
+    titleNavigation: "Starte Navigation",
     delta: 0.0008,
     rotation: 0,
     lalala: 99,
