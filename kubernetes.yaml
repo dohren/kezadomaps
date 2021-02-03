@@ -1,0 +1,34 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: kubernetes-example
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      app: kezadomaps
+  template:
+    metadata:
+      labels:
+        app: kezadomaps
+    spec:
+      containers:
+      - name: kezadomaps
+        image: localhost:32000/kezadompas:1.0
+        imagePullPolicy: Always
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: kubernetes-example-service
+spec:
+  type: NodePort
+  selector:
+    app: kezadomaps
+  ports:
+  - protocol: TCP
+    port: 9393
+    targetPort: 80
+    nodePort: 30005
+
